@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatGPT 5-Day BCMID Plan</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:1100px;margin:40px auto;padding:20px;line-height:1.5;color:#111}
+h1,h2,h3{color:#0f172a}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#f1f5f9}.card{background:#f8fafc;padding:16px;border-radius:12px;margin:12px 0}.mono{font-family:monospace;background:#eef;padding:2px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<h1>ChatGPT Revised 5-Day BCMID Experiment Plan</h1>
+<p><strong>Primary Task:</strong> Binary benign vs malignant classification</p>
+<p><strong>Secondary Task:</strong> Grouped BI-RADS / 3-class exploratory study</p>
+<p><strong>Core Models:</strong> EfficientNet-B0, ConvNeXt-Small, ViT Base</p>
+<p><strong>Pipeline:</strong> Single-modality baselines → Fusion → Loss study → Final CV → Ablations → External validation</p>
+
+<h2>Phase Overview</h2>
+<table>
+<tr><th>Phase</th><th>Goal</th></tr>
+<tr><td>Phase 0</td><td>GPU + dataset + code setup</td></tr>
+<tr><td>Phase 1</td><td>Single-modality baselines</td></tr>
+<tr><td>Phase 2</td><td>Multimodal fusion comparisons</td></tr>
+<tr><td>Phase 3</td><td>Loss study + final model lock</td></tr>
+<tr><td>Phase 4</td><td>5-fold CV + ablations</td></tr>
+<tr><td>Phase 5</td><td>External validation + figures + stats</td></tr>
+</table>
+
+<h2>5-Day Schedule</h2>
+<table>
+<tr><th>Day</th><th>Tasks</th><th>Deliverables</th><th>Best GPU</th></tr>
+<tr><td>Day 1</td><td>Dataset verify, patient split, MG/US baselines (EffNet, ConvNeXt, optional ViT)</td><td>Baseline table + stable pipeline</td><td>RTX 4090</td></tr>
+<tr><td>Day 2</td><td>Fusion runs: avg fusion, concat MLP, late fusion + modality dropout, cross-attention</td><td>Best multimodal architecture</td><td>RTX 4090</td></tr>
+<tr><td>Day 3</td><td>Loss study: BCE, weighted BCE, focal if needed; grouped task</td><td>Final model config locked</td><td>RTX 4090</td></tr>
+<tr><td>Day 4</td><td>5-fold CV, ablations (remove dropout, MG only, US only, missing modality)</td><td>Main publishable results</td><td>RTX 4090 / 5090</td></tr>
+<tr><td>Day 5</td><td>BUSI / CBIS validation, CI stats, ROC, confusion matrix, t-SNE/UMAP</td><td>Paper-ready tables & figures</td><td>RTX 4090</td></tr>
+</table>
+
+<h2>Phase 1 Detailed Baseline Order</h2>
+<ol>
+<li>Mammogram EfficientNet-B0</li>
+<li>Ultrasound EfficientNet-B0</li>
+<li>Mammogram ConvNeXt-Small</li>
+<li>Ultrasound ConvNeXt-Small</li>
+<li>Mammogram ViT Base (optional)</li>
+<li>Ultrasound ViT Base (optional)</li>
+</ol>
+
+<h2>Metrics</h2>
+<ul>
+<li>AUC</li>
+<li>Accuracy</li>
+<li>F1 Score</li>
+<li>Sensitivity</li>
+<li>Specificity</li>
+</ul>
+
+<h2>Submission Assets</h2>
+<ul>
+<li>Baseline results table</li>
+<li>Fusion comparison table</li>
+<li>Ablation table</li>
+<li>ROC curves</li>
+<li>Confusion matrix</li>
+<li>External validation results</li>
+</ul>
+
+<div class="card">
+<strong>Execution Rule:</strong> Do not start next phase until previous phase has clear winner models and saved metrics.
+</div>
+</body>
+</html>
