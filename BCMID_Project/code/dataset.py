@@ -125,17 +125,14 @@ class BCMIDSingleModalityDataset(Dataset):
     def __len__(self) -> int:
         return len(self.records)
 
-    def __getitem__(self, index: int) -> Dict[str, object]:
+    def __getitem__(self, index: int) -> Optional[Dict[str, object]]:
         record = self.records[index]
         try:
             with Image.open(record.path) as img:
                 image = self.transform(img.convert("RGB"))
         except Exception as exc:
             log_corrupt_image(record.path, f"{type(exc).__name__}: {exc}", self.corrupt_log_path)
-            replacement_index = (index + 1) % len(self.records)
-            if replacement_index == index:
-                raise
-            return self.__getitem__(replacement_index)
+            return None
 
         return {
             "image": image,

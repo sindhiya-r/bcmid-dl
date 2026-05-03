@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import math
-import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -55,7 +55,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threshold", type=float, default=0.5)
 
     parser.add_argument("--resume", default=None, help="Path to checkpoint to resume from.")
-    parser.add_argument("--auto-resume", action="store_true", help="Resume from run/checkpoints/last.pt if present.")
+    parser.add_argument(
+        "--auto-resume",
+        action="store_true",
+        help="Resume from output-dir/checkpoints/last.pt if output-dir is an existing run directory.",
+    )
     parser.add_argument("--no-amp", action="store_true", help="Disable mixed precision.")
     parser.add_argument("--no-pretrained", action="store_true", help="Disable ImageNet pretrained weights.")
     parser.add_argument("--no-verify-images", action="store_true", help="Skip startup corrupt-image verification.")
@@ -81,7 +85,19 @@ def make_grad_scaler(device: torch.device, enabled: bool):
         return torch.cuda.amp.GradScaler(enabled=enabled)
 
 
+def autocast_context(device: torch.device, enabled: bool):
+    if not enabled:
+        return contextlib.nullcontext()
+    try:
+        return torch.amp.autocast(device_type=device.type, enabled=True)
+    except TypeError:
+        return torch.cuda.amp.autocast(enabled=True)
+
+
 def collate_batch(batch):
+    batch = [item for item in batch if item is not None]
+    if not batch:
+        return None
     images = torch.stack([item["image"] for item in batch], dim=0)
     labels = torch.stack([item["label"] for item in batch], dim=0)
     patient_ids = [str(item["patient_id"]) for item in batch]
@@ -105,11 +121,13 @@ def train_one_epoch(
     progress = tqdm(loader, desc=f"Epoch {epoch} train", leave=False)
 
     for batch in progress:
+        if batch is None:
+            continue
         images = batch["image"].to(device, non_blocking=True)
         labels = batch["label"].to(device, non_blocking=True).view(-1, 1)
 
         optimizer.zero_grad(set_to_none=True)
-        with torch.amp.autocast(device_type=device.type, enabled=use_amp):
+        with autocast_context(device, use_amp):
             logits = model(images)
             loss = criterion(logits.view(-1, 1), labels)
 
@@ -143,9 +161,11 @@ def evaluate(
 
     progress = tqdm(loader, desc=f"Epoch {epoch} val", leave=False)
     for batch in progress:
+        if batch is None:
+            continue
         images = batch["image"].to(device, non_blocking=True)
         labels = batch["label"].to(device, non_blocking=True).view(-1, 1)
-        with torch.amp.autocast(device_type=device.type, enabled=use_amp):
+        with autocast_context(device, use_amp):
             logits = model(images)
             loss = criterion(logits.view(-1, 1), labels)
 
@@ -168,8 +188,8 @@ def evaluate(
         y_prob.append(float(np.mean(patient_probs[patient_id])))
 
     metrics = compute_binary_metrics(y_true, y_prob, threshold=threshold)
-    metrics["patients"] = float(len(y_true))
-    metrics["images"] = float(seen)
+    metrics["patients"] = int(len(y_true))
+    metrics["images"] = int(seen)
     return running_loss / max(seen, 1), metrics
 
 
@@ -209,12 +229,14 @@ def main() -> int:
     set_seed(args.seed)
 
     data_root = infer_data_root(args.data_root)
-    split_csv = Path(args.split_csv).expanduser()
-    results_root = ensure_dir(Path(args.output_dir).expanduser())
+    split_csv = Path(args.split_csv).expanduser().resolve()
+    results_root = ensure_dir(Path(args.output_dir).expanduser().resolve())
     run_dir = make_run_dir(args, results_root)
     ckpt_dir = ensure_dir(run_dir / "checkpoints")
     logger = setup_logger(run_dir / "train.log")
 
+    if args.device == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA was requested with --device cuda, but torch.cuda.is_available() is False.")
     if args.device == "auto":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:

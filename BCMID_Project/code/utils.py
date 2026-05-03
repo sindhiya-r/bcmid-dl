@@ -7,7 +7,7 @@ import os
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,13 @@ MODALITY_FOLDERS = {
 
 def infer_data_root(explicit_path: Optional[str] = None) -> Path:
     if explicit_path:
-        return Path(explicit_path).expanduser().resolve()
+        explicit = Path(explicit_path).expanduser()
+        if explicit.exists():
+            return explicit.resolve()
+        detected = find_bcmid_root()
+        if detected is not None:
+            return detected
+        return explicit.resolve()
 
     env_path = os.environ.get("BCMID_DATA_ROOT")
     if env_path:
@@ -35,7 +41,20 @@ def infer_data_root(explicit_path: Optional[str] = None) -> Path:
         return KAGGLE_BCMID_ROOT
     if LOCAL_BCMID_ROOT.exists():
         return LOCAL_BCMID_ROOT
+    detected = find_bcmid_root()
+    if detected is not None:
+        return detected
     return PROJECT_ROOT / "data" / "BCMID"
+
+
+def find_bcmid_root() -> Optional[Path]:
+    search_roots = [Path("/kaggle/input"), PROJECT_ROOT / "data"]
+    for search_root in search_roots:
+        if not search_root.exists():
+            continue
+        for label_path in search_root.rglob("BCMID_labels.csv"):
+            return label_path.parent.resolve()
+    return None
 
 
 def default_results_dir() -> Path:
@@ -118,33 +137,43 @@ def read_labels_csv(data_root: Path) -> pd.DataFrame:
         raise FileNotFoundError(f"Missing labels file: {label_path}")
 
     raw = pd.read_csv(label_path, header=None)
-    if raw.shape[1] < 3:
-        headered = pd.read_csv(label_path)
-        lowered = {c.lower(): c for c in headered.columns}
-        patient_col = lowered.get("patient_id") or lowered.get("patient") or lowered.get("id")
-        birads_col = lowered.get("birads") or lowered.get("bi-rads")
-        label_col = lowered.get("label") or lowered.get("target")
-        if not patient_col or not label_col:
-            raise ValueError(f"Could not infer patient and label columns from {label_path}")
-        df = pd.DataFrame(
-            {
-                "patient_id": headered[patient_col].astype(str),
-                "birads": headered[birads_col].astype(str) if birads_col else "",
-                "label": headered[label_col].astype(int),
-            }
-        )
+    if raw.shape[1] >= 3:
+        candidate = raw.iloc[:, :3].copy()
+        candidate.columns = ["patient_id", "birads", "label"]
+        candidate["label"] = pd.to_numeric(candidate["label"], errors="coerce")
+        if candidate["label"].notna().all():
+            df = candidate
+        else:
+            df = _read_headered_labels(label_path)
     else:
-        df = raw.iloc[:, :3].copy()
-        df.columns = ["patient_id", "birads", "label"]
-        df["patient_id"] = df["patient_id"].astype(str)
-        df["birads"] = df["birads"].astype(str)
-        df["label"] = df["label"].astype(int)
+        df = _read_headered_labels(label_path)
+
+    df["patient_id"] = df["patient_id"].astype(str)
+    df["birads"] = df["birads"].fillna("").astype(str)
+    df["label"] = df["label"].astype(int)
 
     df = df.drop_duplicates(subset=["patient_id"]).reset_index(drop=True)
     bad_labels = sorted(set(df["label"].tolist()) - {0, 1})
     if bad_labels:
         raise ValueError(f"Labels must be binary 0/1. Found: {bad_labels}")
     return df
+
+
+def _read_headered_labels(label_path: Path) -> pd.DataFrame:
+    headered = pd.read_csv(label_path)
+    lowered = {str(c).strip().lower(): c for c in headered.columns}
+    patient_col = lowered.get("patient_id") or lowered.get("patient") or lowered.get("id")
+    birads_col = lowered.get("birads") or lowered.get("bi-rads")
+    label_col = lowered.get("label") or lowered.get("target") or lowered.get("malignant")
+    if not patient_col or not label_col:
+        raise ValueError(f"Could not infer patient and label columns from {label_path}")
+    return pd.DataFrame(
+        {
+            "patient_id": headered[patient_col],
+            "birads": headered[birads_col] if birads_col else "",
+            "label": pd.to_numeric(headered[label_col], errors="raise"),
+        }
+    )
 
 
 def create_patient_split(

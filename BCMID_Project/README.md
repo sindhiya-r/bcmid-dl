@@ -19,7 +19,7 @@ Defaults are built in:
 - Local: `E:\Multimodal_attention_DeepLearning\BCMID`
 - Kaggle: `/kaggle/input/datasets/cs24m1005sindhiyar/bcmid-dataset/BCMID`
 
-You can override with `--data-root` or `BCMID_DATA_ROOT`.
+You can override with `--data-root` or `BCMID_DATA_ROOT`. If the Kaggle path differs after attaching a dataset, the code searches `/kaggle/input` for `BCMID_labels.csv` and uses that folder as the dataset root.
 
 Expected dataset layout:
 
@@ -110,6 +110,8 @@ Resume automatically from an existing run directory:
 ```bash
 python code/train_single.py --modality ultrasound --backbone efficientnet_b0 --output-dir results/<run> --auto-resume
 ```
+
+`--auto-resume` expects `--output-dir` to point at an existing run directory that contains `checkpoints/last.pt`.
 
 ## Kaggle Packaging
 

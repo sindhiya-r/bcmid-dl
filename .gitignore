@@ -1,0 +1,19 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Backup bundles and generated data
+BCMID_Project/backups/
+
+# Virtual environments
+venv/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
