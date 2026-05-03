@@ -587,20 +587,20 @@ def main() -> int:
         else:
             no_improve_epochs += 1
 
-        save_checkpoint(
-            ckpt_dir / f"epoch_{epoch:03d}.pt",
-            model,
-            optimizer,
-            scaler,
-            scheduler,
-            epoch,
-            best_auc,
-            args,
-            train_loss,
-            val_loss,
-            val_metrics,
-            best_epoch_metrics,
-        )
+        # save_checkpoint(
+        #     ckpt_dir / f"epoch_{epoch:03d}.pt",
+        #     model,
+        #     optimizer,
+        #     scaler,
+        #     scheduler,
+        #     epoch,
+        #     best_auc,
+        #     args,
+        #     train_loss,
+        #     val_loss,
+        #     val_metrics,
+        #     best_epoch_metrics,
+        # )
         save_checkpoint(
             ckpt_dir / "last.pt",
             model,

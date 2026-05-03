@@ -1,0 +1,14 @@
+2026-05-03 13:11:17,054 | INFO | Data root: /kaggle/input/datasets/cs24m1005sindhiyar/bcmid-dataset/BCMID
+2026-05-03 13:11:17,055 | INFO | Results root: /kaggle/working/results
+2026-05-03 13:11:17,055 | INFO | Run dir: /kaggle/working/results/mammogram_efficientnet_b0_20260503_131116
+2026-05-03 13:11:17,055 | INFO | Device: cuda | AMP: True
+2026-05-03 13:19:02,686 | INFO | Train images: 829 | Val images: 211
+2026-05-03 13:19:02,687 | INFO | Train image-level label counts: {0: 707, 1: 122}
+2026-05-03 13:25:52,867 | INFO | Epoch 001 | train_loss=2.13432 | val_loss=1.52376 | auc=0.72929 | acc=0.79688 | f1=0.00000 | sens=0.00000 | spec=0.92727
+2026-05-03 13:32:56,678 | INFO | Epoch 002 | train_loss=0.83510 | val_loss=1.42098 | auc=0.69091 | acc=0.81250 | f1=0.00000 | sens=0.00000 | spec=0.94545
+2026-05-03 13:39:22,750 | INFO | Epoch 003 | train_loss=0.73822 | val_loss=1.75398 | auc=0.57374 | acc=0.75000 | f1=0.00000 | sens=0.00000 | spec=0.87273
+2026-05-03 13:45:38,442 | INFO | Epoch 004 | train_loss=0.50455 | val_loss=1.54949 | auc=0.62222 | acc=0.82812 | f1=0.15385 | sens=0.11111 | spec=0.94545
+2026-05-03 13:52:14,204 | INFO | Epoch 005 | train_loss=0.28399 | val_loss=1.38684 | auc=0.64646 | acc=0.79688 | f1=0.00000 | sens=0.00000 | spec=0.92727
+2026-05-03 13:58:22,515 | INFO | Epoch 006 | train_loss=0.24972 | val_loss=1.34080 | auc=0.67879 | acc=0.78125 | f1=0.00000 | sens=0.00000 | spec=0.90909
+2026-05-03 13:58:22,515 | INFO | Early stopping after 5 epochs without AUC improvement.
+2026-05-03 13:58:22,515 | INFO | Finished training. Best patient-level AUC: 0.72929

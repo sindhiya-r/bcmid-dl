@@ -432,21 +432,21 @@ def main() -> int:
         else:
             no_improve_epochs += 1
 
-        epoch_ckpt = ckpt_dir / f"epoch_{epoch:03d}.pt"
-        save_checkpoint(
-            epoch_ckpt,
-            model,
-            optimizer,
-            scaler,
-            scheduler,
-            epoch,
-            best_auc,
-            args,
-            train_loss,
-            val_loss,
-            val_metrics,
-            best_epoch_metrics,
-        )
+        # epoch_ckpt = ckpt_dir / f"epoch_{epoch:03d}.pt"
+        # save_checkpoint(
+        #     epoch_ckpt,
+        #     model,
+        #     optimizer,
+        #     scaler,
+        #     scheduler,
+        #     epoch,
+        #     best_auc,
+        #     args,
+        #     train_loss,
+        #     val_loss,
+        #     val_metrics,
+        #     best_epoch_metrics,
+        # )
         save_checkpoint(
             ckpt_dir / "last.pt",
             model,

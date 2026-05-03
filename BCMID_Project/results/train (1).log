@@ -1,0 +1,18 @@
+2026-05-03 13:02:47,137 | INFO | Data root: /kaggle/input/datasets/cs24m1005sindhiyar/bcmid-dataset/BCMID
+2026-05-03 13:02:47,138 | INFO | Results root: /kaggle/working/results
+2026-05-03 13:02:47,138 | INFO | Run dir: /kaggle/working/results/ultrasound_efficientnet_b0_20260503_130246
+2026-05-03 13:02:47,138 | INFO | Device: cuda | AMP: True
+2026-05-03 13:03:10,104 | INFO | Train images: 707 | Val images: 243
+2026-05-03 13:03:10,104 | INFO | Train image-level label counts: {0: 587, 1: 120}
+2026-05-03 13:03:52,175 | INFO | Epoch 001 | train_loss=2.15324 | val_loss=2.22993 | auc=0.61905 | acc=0.81538 | f1=0.00000 | sens=0.00000 | spec=0.94643
+2026-05-03 13:04:07,217 | INFO | Epoch 002 | train_loss=0.79283 | val_loss=1.88308 | auc=0.48214 | acc=0.75385 | f1=0.00000 | sens=0.00000 | spec=0.87500
+2026-05-03 13:04:21,417 | INFO | Epoch 003 | train_loss=0.47115 | val_loss=1.86825 | auc=0.59921 | acc=0.76923 | f1=0.11765 | sens=0.11111 | spec=0.87500
+2026-05-03 13:04:35,650 | INFO | Epoch 004 | train_loss=0.31614 | val_loss=2.16286 | auc=0.70635 | acc=0.84615 | f1=0.00000 | sens=0.00000 | spec=0.98214
+2026-05-03 13:04:50,052 | INFO | Epoch 005 | train_loss=0.16667 | val_loss=1.66337 | auc=0.79365 | acc=0.86154 | f1=0.00000 | sens=0.00000 | spec=1.00000
+2026-05-03 13:05:04,357 | INFO | Epoch 006 | train_loss=0.16911 | val_loss=1.71356 | auc=0.77381 | acc=0.81538 | f1=0.14286 | sens=0.11111 | spec=0.92857
+2026-05-03 13:05:19,029 | INFO | Epoch 007 | train_loss=0.13282 | val_loss=1.72917 | auc=0.65873 | acc=0.78462 | f1=0.12500 | sens=0.11111 | spec=0.89286
+2026-05-03 13:05:33,942 | INFO | Epoch 008 | train_loss=0.10984 | val_loss=2.08622 | auc=0.79167 | acc=0.84615 | f1=0.16667 | sens=0.11111 | spec=0.96429
+2026-05-03 13:05:50,858 | INFO | Epoch 009 | train_loss=0.11392 | val_loss=1.86272 | auc=0.77877 | acc=0.84615 | f1=0.28571 | sens=0.22222 | spec=0.94643
+2026-05-03 13:06:05,427 | INFO | Epoch 010 | train_loss=0.07218 | val_loss=2.47008 | auc=0.72222 | acc=0.83077 | f1=0.00000 | sens=0.00000 | spec=0.96429
+2026-05-03 13:06:05,427 | INFO | Early stopping after 5 epochs without AUC improvement.
+2026-05-03 13:06:05,427 | INFO | Finished training. Best patient-level AUC: 0.79365
