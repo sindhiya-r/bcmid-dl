@@ -36,33 +36,35 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train BCMID single-modality binary classifier.")
     parser.add_argument("--modality", required=True, choices=["mammogram", "ultrasound"])
     parser.add_argument("--backbone", default="efficientnet_b0", choices=list(supported_backbones()))
-    parser.add_argument("--data-root", default=None, help="BCMID dataset root. Auto-detected if omitted.")
-    parser.add_argument("--split-csv", default=str(PROJECT_ROOT / "configs" / "patient_split.csv"))
-    parser.add_argument("--output-dir", default=str(default_results_dir()))
-    parser.add_argument("--run-name", default=None)
-    parser.add_argument("--val-size", type=float, default=0.2)
+    parser.add_argument("--data-root", "--data_dir", "--data-dir", dest="data_root", default=None, help="BCMID dataset root. Auto-detected if omitted.")
+    parser.add_argument("--split-csv", "--split_csv", dest="split_csv", default=str(PROJECT_ROOT / "configs" / "patient_split.csv"))
+    parser.add_argument("--output-dir", "--output_dir", dest="output_dir", default=str(default_results_dir()))
+    parser.add_argument("--run-name", "--run_name", dest="run_name", default=None)
+    parser.add_argument("--val-size", "--val_size", dest="val_size", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=42)
 
-    parser.add_argument("--img-size", type=int, default=224)
+    parser.add_argument("--img-size", "--img_size", dest="img_size", type=int, default=224)
     parser.add_argument("--epochs", type=int, default=20)
-    parser.add_argument("--batch-size", type=int, default=16)
-    parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument("--batch-size", "--batch_size", dest="batch_size", type=int, default=16)
+    parser.add_argument("--num-workers", "--num_workers", dest="num_workers", type=int, default=2)
     parser.add_argument("--lr", type=float, default=3e-4)
-    parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--weighted-bce", action="store_true", help="Use auto-computed BCE pos_weight.")
+    parser.add_argument("--weight-decay", "--weight_decay", dest="weight_decay", type=float, default=1e-4)
+    parser.add_argument("--weighted-bce", "--weighted_bce", dest="weighted_bce", action="store_true", help="Use auto-computed BCE pos_weight.")
     parser.add_argument("--scheduler", choices=["none", "cosine"], default="cosine")
-    parser.add_argument("--early-stopping-patience", type=int, default=5)
+    parser.add_argument("--early-stopping-patience", "--early_stopping_patience", dest="early_stopping_patience", type=int, default=5)
     parser.add_argument("--threshold", type=float, default=0.5)
 
     parser.add_argument("--resume", default=None, help="Path to checkpoint to resume from.")
     parser.add_argument(
         "--auto-resume",
+        "--auto_resume",
+        dest="auto_resume",
         action="store_true",
         help="Resume from output-dir/checkpoints/last.pt if output-dir is an existing run directory.",
     )
-    parser.add_argument("--no-amp", action="store_true", help="Disable mixed precision.")
-    parser.add_argument("--no-pretrained", action="store_true", help="Disable ImageNet pretrained weights.")
-    parser.add_argument("--no-verify-images", action="store_true", help="Skip startup corrupt-image verification.")
+    parser.add_argument("--no-amp", "--no_amp", dest="no_amp", action="store_true", help="Disable mixed precision.")
+    parser.add_argument("--no-pretrained", "--no_pretrained", dest="no_pretrained", action="store_true", help="Disable ImageNet pretrained weights.")
+    parser.add_argument("--no-verify-images", "--no_verify_images", dest="no_verify_images", action="store_true", help="Skip startup corrupt-image verification.")
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     return parser.parse_args()
 
