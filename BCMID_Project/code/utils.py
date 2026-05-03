@@ -292,6 +292,125 @@ def compute_binary_metrics(
     }
 
 
+def threshold_grid(start: float = 0.05, stop: float = 0.95, step: float = 0.01) -> List[float]:
+    count = int(round((stop - start) / step)) + 1
+    return [round(start + i * step, 4) for i in range(count)]
+
+
+def find_best_f1_threshold(
+    y_true: Iterable[int],
+    y_prob: Iterable[float],
+    thresholds: Optional[Iterable[float]] = None,
+) -> Dict[str, float]:
+    y_true_list = list(y_true)
+    y_prob_list = list(y_prob)
+    candidates = list(thresholds) if thresholds is not None else threshold_grid()
+    best_threshold = candidates[0]
+    best_metrics = compute_binary_metrics(y_true_list, y_prob_list, threshold=best_threshold)
+    best_score = (
+        _nan_to_score(best_metrics["f1"]),
+        _nan_to_score(best_metrics["sensitivity"]),
+        _nan_to_score(best_metrics["specificity"]),
+    )
+
+    for threshold in candidates[1:]:
+        metrics = compute_binary_metrics(y_true_list, y_prob_list, threshold=threshold)
+        score = (
+            _nan_to_score(metrics["f1"]),
+            _nan_to_score(metrics["sensitivity"]),
+            _nan_to_score(metrics["specificity"]),
+        )
+        if score > best_score:
+            best_threshold = threshold
+            best_metrics = metrics
+            best_score = score
+
+    return {
+        "threshold": float(best_threshold),
+        **best_metrics,
+    }
+
+
+def find_best_youden_threshold(
+    y_true: Iterable[int],
+    y_prob: Iterable[float],
+    thresholds: Optional[Iterable[float]] = None,
+) -> Dict[str, float]:
+    y_true_list = list(y_true)
+    y_prob_list = list(y_prob)
+    candidates = list(thresholds) if thresholds is not None else threshold_grid()
+    best_threshold = candidates[0]
+    best_metrics = compute_binary_metrics(y_true_list, y_prob_list, threshold=best_threshold)
+    best_youden = _youden_score(best_metrics)
+    best_score = (
+        best_youden,
+        _nan_to_score(best_metrics["sensitivity"]),
+        _nan_to_score(best_metrics["specificity"]),
+        _nan_to_score(best_metrics["f1"]),
+    )
+
+    for threshold in candidates[1:]:
+        metrics = compute_binary_metrics(y_true_list, y_prob_list, threshold=threshold)
+        youden = _youden_score(metrics)
+        score = (
+            youden,
+            _nan_to_score(metrics["sensitivity"]),
+            _nan_to_score(metrics["specificity"]),
+            _nan_to_score(metrics["f1"]),
+        )
+        if score > best_score:
+            best_threshold = threshold
+            best_metrics = metrics
+            best_youden = youden
+            best_score = score
+
+    return {
+        "threshold": float(best_threshold),
+        "youden": float(best_youden),
+        **best_metrics,
+    }
+
+
+def compute_patient_metrics_with_thresholds(
+    y_true: Iterable[int],
+    y_prob: Iterable[float],
+    fixed_threshold: float = 0.5,
+) -> Dict[str, float]:
+    y_true_list = list(y_true)
+    y_prob_list = list(y_prob)
+    fixed = compute_binary_metrics(y_true_list, y_prob_list, threshold=fixed_threshold)
+    best_f1 = find_best_f1_threshold(y_true_list, y_prob_list)
+    best_youden = find_best_youden_threshold(y_true_list, y_prob_list)
+    return {
+        "auc": fixed["auc"],
+        "accuracy": fixed["accuracy"],
+        "f1": fixed["f1"],
+        "sensitivity": fixed["sensitivity"],
+        "specificity": fixed["specificity"],
+        "best_f1": best_f1["f1"],
+        "best_threshold": best_f1["threshold"],
+        "best_threshold_sensitivity": best_f1["sensitivity"],
+        "best_threshold_specificity": best_f1["specificity"],
+        "youden": best_youden["youden"],
+        "youden_threshold": best_youden["threshold"],
+        "youden_sensitivity": best_youden["sensitivity"],
+        "youden_specificity": best_youden["specificity"],
+        "youden_f1": best_youden["f1"],
+    }
+
+
+def _nan_to_score(value: float) -> float:
+    return -1.0 if np.isnan(value) else float(value)
+
+
+def _youden_score(metrics: Dict[str, float]) -> float:
+    sensitivity = metrics["sensitivity"]
+    specificity = metrics["specificity"]
+    if np.isnan(sensitivity) or np.isnan(specificity):
+        return -1.0
+    return float(sensitivity + specificity - 1.0)
+
+
 def binary_auc(y_true: np.ndarray, y_score: np.ndarray) -> float:
     positives = int((y_true == 1).sum())
     negatives = int((y_true == 0).sum())

@@ -12,6 +12,12 @@ Phase 1 baselines:
 - Mammogram only
 - Ultrasound only
 
+Phase 2 fusion:
+
+- Late fusion: average modality logits
+- Concat fusion: concatenated modality features plus MLP
+- Gated fusion: learned modality gates
+
 ## Dataset Paths
 
 Defaults are built in:
@@ -70,6 +76,18 @@ Train mammogram baseline:
 python code/train_single.py --modality mammogram --backbone efficientnet_b0 --weighted-bce
 ```
 
+Train multimodal fusion:
+
+```bash
+python code/train_fusion.py --fusion-method gated --backbone efficientnet_b0 --weighted-bce
+```
+
+Available fusion methods:
+
+- `late`
+- `concat`
+- `gated`
+
 Supported backbones:
 
 - `efficientnet_b0`
@@ -88,6 +106,8 @@ Each run writes:
 - `checkpoints/epoch_XXX.pt`
 - `checkpoints/last.pt`
 - `checkpoints/best.pt`
+- `summary.json`
+- `best_val_patient_predictions.csv`
 
 Corrupt images are skipped and logged to:
 
@@ -96,6 +116,13 @@ results/corrupt_images.txt
 ```
 
 Validation metrics are patient-level. Image probabilities are averaged per patient before computing AUC, accuracy, F1, sensitivity, and specificity.
+
+Threshold reporting:
+
+- Fixed-threshold metrics use `--threshold`, default `0.5`.
+- `best_threshold` searches `0.05` to `0.95` with step `0.01` and maximizes F1.
+- `youden_threshold` searches the same grid and maximizes `sensitivity + specificity - 1`.
+- Early stopping always uses patient-level AUC.
 
 ## Resume Training
 
